@@ -1,15 +1,16 @@
-from flask import Flask, request,render_template 
-from pymongo import MongoClient 
+from flask import Blueprint, request
+from pymongo import MongoClient
 from datetime import datetime
-import json
 
-app = Flask(__name__) 
+# Initialize Blueprint
+app_admin = Blueprint('app_admin', __name__)
 
+# Configure MongoDB
 client = MongoClient('mongodb://localhost:27017/')
 db = client['shortly']
 collection = db['urls']
 
-@app.route('/delete', methods=['DELETE'])
+@app_admin.route('/delete', methods=['DELETE'])
 def delete_short_url():
     data = request.json
     if not data:
@@ -25,7 +26,7 @@ def delete_short_url():
 
     return 'Short URL deleted successfully', 200
 
-@app.route('/update/expiry', methods=['PATCH'])
+@app_admin.route('/update/expiry', methods=['PATCH'])
 def update_expiry():
     data = request.json
     if not data:
@@ -41,7 +42,6 @@ def update_expiry():
 
     try:
         new_expiration_date = datetime.fromisoformat(new_expiration).isoformat()
-
     except ValueError:
         return 'Invalid expiration date format. Use ISO 8601 format (YYYY-MM-DD).', 400
 
@@ -68,6 +68,3 @@ def update_expiry():
         return 'Short URL not found in the database', 404
 
     return 'Expiration date updated successfully', 200
-
-if __name__ == '__main__':
-    app.run(debug=True)
