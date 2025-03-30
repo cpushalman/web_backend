@@ -1,12 +1,13 @@
 from flask import Flask, request,render_template 
 from pymongo import MongoClient 
 from datetime import datetime
+import json
 
 app = Flask(__name__) 
 
-client = MongoClient('mongodb://localhost:27017/') 
-db = client['demo'] 
-collection = db['data'] 
+client = MongoClient('mongodb://localhost:27017/')
+db = client['shortly']
+collection = db['urls']
 
 @app.route('/delete', methods=['DELETE'])
 def delete_short_url():
@@ -31,7 +32,7 @@ def update_expiry():
         return 'No data provided', 400
 
     short_code = data.get('shortCode')
-    new_expiration = data.get('expiration_date')
+    new_expiration = data.get('expiryAt')
 
     if not short_code:
         return 'No short URL code provided', 400
@@ -39,7 +40,8 @@ def update_expiry():
         return 'No expiration date provided', 400
 
     try:
-        new_expiration_date = datetime.fromisoformat(new_expiration)
+        new_expiration_date = datetime.fromisoformat(new_expiration).isoformat()
+
     except ValueError:
         return 'Invalid expiration date format. Use ISO 8601 format (YYYY-MM-DD).', 400
 
@@ -47,7 +49,7 @@ def update_expiry():
     if not existing_entry:
         return 'Short URL not found in the database', 404
 
-    current_expiration = existing_entry.get('expiration_date')
+    current_expiration = existing_entry.get('expiryAt')
     if current_expiration:
         try:
             current_expiration_date = datetime.fromisoformat(current_expiration)
@@ -59,7 +61,7 @@ def update_expiry():
 
     result = collection.update_one(
         {'shortCode': short_code},
-        {'$set': {'expiration_date': new_expiration}}
+        {'$set': {'expiryAt': new_expiration}}
     )
 
     if result.matched_count == 0:
