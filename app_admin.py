@@ -33,15 +33,15 @@ def update_expiry():
         return 'No data provided', 400
 
     short_code = data.get('shortCode')
-    new_expiration = data.get('expiryAt')
+    expiration = data.get('expiryDate')
 
     if not short_code:
         return 'No short URL code provided', 400
-    if not new_expiration:
+    if not expiration:
         return 'No expiration date provided', 400
 
     try:
-        new_expiration_date = datetime.fromisoformat(new_expiration).isoformat()
+        new_expiration_date = datetime.fromisoformat(expiration).isoformat()
     except ValueError:
         return 'Invalid expiration date format. Use ISO 8601 format (YYYY-MM-DD).', 400
 
@@ -49,7 +49,7 @@ def update_expiry():
     if not existing_entry:
         return 'Short URL not found in the database', 404
 
-    current_expiration = existing_entry.get('expiryAt')
+    current_expiration = existing_entry.get('expiryDate')
     if current_expiration:
         try:
             current_expiration_date = datetime.fromisoformat(current_expiration)
@@ -61,7 +61,7 @@ def update_expiry():
 
     result = collection.update_one(
         {'shortCode': short_code},
-        {'$set': {'expiryAt': new_expiration}}
+        {'$set': {'expiryDate': new_expiration}}
     )
 
     if result.matched_count == 0:
