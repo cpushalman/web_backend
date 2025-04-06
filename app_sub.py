@@ -7,6 +7,9 @@ import requests
 from collections import Counter
 
 app=Flask(__name__)
+from flask import Blueprint
+app_sub = Blueprint('app_sub', __name__, url_prefix='/sub')
+
 
 MONGO_URI="mongodb+srv://apk:curious-champ@cluster0.dpdv9hr.mongodb.net/"
 client=MongoClient(MONGO_URI)
@@ -24,7 +27,7 @@ def get_location(ip):
         "city": response.get("city", "Unknown")
     }
 
-@app.route('/<short>')
+@app_sub.route('/<short>')
 def get_info_and_redirect(short):
     url=collection.find_one({'shortCode':short})
     if not url:
@@ -63,13 +66,13 @@ def get_info_and_redirect(short):
     #Updating MongoDB
     collection.update_one(
         {"shortCode": short},
-        {"$push": {"clicks": click_data}}  
+        {"$push": {"click_data": click_data}}  
     )
     
     return redirect(url['longUrl'])
 
 #Getting impressions for ctr
-@app.route('/impression/<short>')
+@app_sub.route('/impression/<short>')
 def count_impression(short):
     collection.update_one(
         {"shortCode": short},
@@ -79,16 +82,16 @@ def count_impression(short):
     return "Impression counted", 200
 
 #Diplaying ctr
-@app.route('/ctr/<short>')
+@app_sub.route('/ctr/<short>')
 def getctr(short):
     url=collection.find_one({'shortCode':short})
     if not url:
         return "short code not found"
-    if "clicks" not in url:
+    if "click_data" not in url:
         return "No clicks yet"
     if "impressions" not in url:
         return "No impressions yet"
-    clicks=len(url['clicks'])
+    clicks=len(url['click_data'])
     impressions=url['impressions']
     ctr=clicks/impressions
     display={"shortCode": short, "ctr": ctr, "totalImpressions": impressions, "clicks": clicks}
@@ -96,16 +99,16 @@ def getctr(short):
     return pretty_json
 
 #Displaying analytics
-@app.route('/analytics/<short>')
+@app_sub.route('/analytics/<short>')
 def get_analytics(short):
     url=collection.find_one({'shortCode':short})
     if not url:
         return "Short code does not exist", 404
-    clicks=len(url['clicks'])
+    clicks=len(url['click_data'])
     
-    device = Counter(click['device'] for click in url['clicks'])
-    os = Counter(click['os'] for click in url['clicks'])
-    browser = Counter(click['browser'] for click in url['clicks'])
+    device = Counter(click['device'] for click in url['click_data'])
+    os = Counter(click['os'] for click in url['click_data'])
+    browser = Counter(click['browser'] for click in url['click_data'])
 
     display={"shortCode": short, "totalClicks": clicks, "uniqueVisitors": url.get('unique_visitors',0), "deviceDistribution": device, "osDistribution": os, "browserDistribution": browser}
     pretty_json = json.dumps(display, indent=4)  #pretty printing
