@@ -1,12 +1,12 @@
 from flask import Flask, request, jsonify, redirect
 from pymongo import MongoClient
 from datetime import datetime, timedelta
-
-
 app = Flask(__name__)
+from flask import Blueprint
+app_pr = Blueprint('app_pr', __name__, url_prefix='/pr')
 
 # MongoDB connection
-client = MongoClient('mongodb://localhost:27017/')
+client = MongoClient('mongodb+srv://apk:curious-champ@cluster0.dpdv9hr.mongodb.net/')
 db = client['shortly']
 collection = db['urls']
 
@@ -16,7 +16,7 @@ def generate_short_code():
     import string
     return ''.join(choices(string.ascii_letters + string.digits, k=6))
 
-@app.route('/shorten', methods=['POST'])
+@app_pr.route('/shorten', methods=['POST'])
 def shorten_url():
     data = request.json
     long_url = data.get('longUrl')
@@ -51,7 +51,7 @@ def shorten_url():
         "expiryDate": record["expiryDate"].isoformat()
     }), 201
 
-@app.route('/expand/<string:short_code>', methods=['GET'])
+@app_pr.route('/expand/<string:short_code>', methods=['GET'])
 def expand_url(short_code):
     record = collection.find_one({"shortCode": short_code})
     if not record:
@@ -69,7 +69,7 @@ def expand_url(short_code):
         "expiryDate": record['expiryDate'].isoformat()
     }), 200
 
-@app.route('/<string:short_code>', methods=['GET'])
+@app_pr.route('/<string:short_code>', methods=['GET'])
 def redirect_to_original_url(short_code):
     record = collection.find_one({"shortCode": short_code})
     if not record:
