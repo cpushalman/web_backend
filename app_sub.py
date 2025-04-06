@@ -3,18 +3,33 @@ from pymongo import MongoClient
 from datetime import datetime
 from user_agents import parse
 import json
+import requests
+from collections import Counter
 
 app=Flask(__name__)
 
-client=MongoClient('mongodb://localhost:27017/')
+MONGO_URI="mongodb+srv://apk:curious-champ@cluster0.dpdv9hr.mongodb.net/"
+client=MongoClient(MONGO_URI)
 db=client['shortly']
 collection=db['urls']
+
+#location from ip address
+def get_location(ip):
+    url = f"http://ip-api.com/json/{ip}"
+    response = requests.get(url).json()
+
+    return {
+        "country": response.get("country", "Unknown"),
+        "region": response.get("regionName", "Unknown"),
+        "city": response.get("city", "Unknown")
+    }
 
 @app.route('/<short>')
 def get_info_and_redirect(short):
     url=collection.find_one({'shortCode':short})
     if not url:
         return "URL not found",404
+    
     #Getting the data of a click
     now=datetime.utcnow()
     user_agent=parse(request.user_agent.string)
@@ -22,6 +37,8 @@ def get_info_and_redirect(short):
         ip_address = request.headers.get('X-Forwarded-For').split(',')[0]#first ip in the list
     else:
         ip_address = request.remote_addr
+    
+    location_data = get_location(ip_address)
     click_data = {
         "time": now.strftime("%H:%M:%S"),
         "date": now.day,
@@ -31,23 +48,25 @@ def get_info_and_redirect(short):
         "device": user_agent.device.family,
         "os": user_agent.os.family,
         "browser": user_agent.browser.family,
-        "ip": ip_address
+        "ip": ip_address,
+        "country": location_data["country"],
+        "region": location_data["region"],
+        "city": location_data["city"]
     }
     #Getting unique visitors
-    ip_list = [click["ip"] for click in url.get("clicks",[])]
-    if ip_address not in ip_list:
-        collection.update_one(
-            {"shortCode": short},
-            {"$inc": {"unique_visitors": 1}},
-            upsert=True 
-        ) 
+    collection.update_one(
+        {"shortCode": short, "clicks.ip": {"$ne": ip_address}},  #Checking if IP does not already exist
+        {"$inc": {"unique_visitors": 1}},
+        upsert=True
+    )
+
     #Updating MongoDB
     collection.update_one(
         {"shortCode": short},
         {"$push": {"clicks": click_data}}  
     )
     
-    return redirect(url['original_url'])
+    return redirect(url['longUrl'])
 
 #Getting impressions for ctr
 @app.route('/impression/<short>')
@@ -83,22 +102,10 @@ def get_analytics(short):
     if not url:
         return "Short code does not exist", 404
     clicks=len(url['clicks'])
-    device={}
-    os={}
-    browser={}
-    for click in url['clicks']:
-        if click['device'] not in device:
-            device[click['device']]=1
-        else:
-            device[click['device']]+=1
-        if click['os'] not in os:
-            os[click['os']]=1
-        else:
-            os[click['os']]+=1
-        if click['browser'] not in browser:
-            browser[click['browser']]=1
-        else:
-            browser[click['browser']]+=1
+    
+    device = Counter(click['device'] for click in url['clicks'])
+    os = Counter(click['os'] for click in url['clicks'])
+    browser = Counter(click['browser'] for click in url['clicks'])
 
     display={"shortCode": short, "totalClicks": clicks, "uniqueVisitors": url.get('unique_visitors',0), "deviceDistribution": device, "osDistribution": os, "browserDistribution": browser}
     pretty_json = json.dumps(display, indent=4)  #pretty printing
