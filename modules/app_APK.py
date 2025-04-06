@@ -5,6 +5,9 @@ import random
 import string
 
 app = Flask(__name__)
+from flask import Blueprint
+app_sub = Blueprint('app_sub', __name__, url_prefix='/sub')
+ 
 
 # MongoDB connection
 client = MongoClient('mongodb://localhost:27017/')
@@ -19,7 +22,7 @@ def generate_short_code():
     """Generate a random 6-character alphanumeric short code."""
     return ''.join(random.choices(string.ascii_letters + string.digits, k=6))
 
-@app.route('/bulk-shorten', methods=['POST'])
+@app_APK.route('/bulk-shorten', methods=['POST'])
 def bulk_shorten():
     """Bulk shorten URLs."""
     data = request.json
