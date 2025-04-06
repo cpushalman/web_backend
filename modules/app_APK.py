@@ -6,7 +6,7 @@ import string
 
 app = Flask(__name__)
 from flask import Blueprint
-app_sub = Blueprint('app_sub', __name__, url_prefix='/sub')
+app_APK = Blueprint('app_APK', __name__, url_prefix='/APK')
  
 
 # MongoDB connection
