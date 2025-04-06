@@ -4,6 +4,10 @@ import os
 
 app = Flask(__name__)
 
+@app.route('/', methods=['GET'])
+def index():
+    return "Welcome to the URL Shortener API!"
+
 # Register blueprints with error handling
 try:
     app.register_blueprint(app_APK.app, url_prefix='/APK')
