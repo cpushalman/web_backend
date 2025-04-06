@@ -10,7 +10,7 @@ app_APK = Blueprint('app_APK', __name__, url_prefix='/APK')
  
 
 # MongoDB connection
-client = MongoClient('mongodb://localhost:27017/')
+client = MongoClient("mongodb+srv://apk:curious-champ@cluster0.dpdv9hr.mongodb.net/")
 db = client['shortly']
 collection = db['urls']
 
