@@ -3,6 +3,10 @@ from pymongo import MongoClient
 from datetime import datetime, timedelta
 import random
 import string
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 app = Flask(__name__)
 from flask import Blueprint
@@ -10,7 +14,7 @@ app_APK = Blueprint('app_APK', __name__, url_prefix='/APK')
  
 
 # MongoDB connection
-client = MongoClient("mongodb+srv://apk:curious-champ@cluster0.dpdv9hr.mongodb.net/")
+client = MongoClient(os.getenv('MONGODB_URI'))
 db = client['shortly']
 collection = db['urls']
 
