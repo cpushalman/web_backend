@@ -2,11 +2,13 @@ from flask import Blueprint, request
 from pymongo import MongoClient
 from datetime import datetime
 import os
+from dotenv import load_dotenv
 
-MONGO_URI=os.getenv("MONGO_URI","mongodb+srv://apk:cuorious-champ@cluster0.dpdv9hr.mongodb.net/")
-if not MONGO_URI:
-    raise ValueError("MONGO_URI environment variable not set")
-client = MongoClient(MONGO_URI)
+load_dotenv()
+
+
+# MongoDB connection
+client = MongoClient(os.getenv('MONGODB_URI'))
 db = client['shortly']
 collection = db['urls']
 
