@@ -11,7 +11,7 @@
 
 - [ ] Choose either Blueprint or newformat 
 - [X] MongoDB should be a ENVVAR
-- [ ] Better naming instead of contributer initials
+- [X] Better naming instead of contributer initials
 - [ ] Overall API Testing
 - [ ] Fill up database with some sample data
 
