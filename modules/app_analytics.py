@@ -5,6 +5,7 @@ from user_agents import parse
 import json
 import requests
 from collections import Counter
+import os
 from dotenv import load_dotenv
 
 load_dotenv()
