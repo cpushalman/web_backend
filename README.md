@@ -9,7 +9,7 @@
 ### Week 4 Todo
 - [ ] Create a file MongoConnection.py, which has a connecter class and functions that CRUDs data from the database, similar to `newformat/modules/beta.py`
 
-- [ ] Choose either Blueprint or newformat 
+- [X] Choose either Blueprint or newformat 
 - [X] MongoDB should be a ENVVAR
 - [X] Better naming instead of contributer initials
 - [ ] Overall API Testing
