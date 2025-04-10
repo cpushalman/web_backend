@@ -10,6 +10,7 @@ class MainApp:
     def __init__(self):
         self.app = Flask(__name__)
         self.register_modules()
+        self.register_routes()
 
     def register_modules(self):
         self.app.register_blueprint(BSModule().get_blueprint())
@@ -17,6 +18,11 @@ class MainApp:
         self.app.register_blueprint(AnalyticsModule().get_blueprint())
         self.app.register_blueprint(ShortenModule().get_blueprint())
 
+    def register_routes(self):
+        @self.app.route("/")
+        def home():
+            return "Welcome to the Main App!"
+        
     def get_app(self):
         return self.app
     
