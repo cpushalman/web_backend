@@ -12,7 +12,7 @@ client = MongoClient(os.getenv('MONGODB_URI'))
 db = client['shortly']
 collection = db['urls']
 
-class AdminModule:
+class BulkshortenModule:
     def __init__(self):
         self.bp = Blueprint('bs', __name__, url_prefix='/bulk-shorten')
         self.register_routes()
