@@ -2,7 +2,9 @@
 
 from core.main_app import MainApp
 
-app = MainApp().get_app()
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
+if __name__ == "__main__":
+    main_app = MainApp()
+    app = main_app.get_app()
+    app.run(debug=True)    

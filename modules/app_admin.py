@@ -84,6 +84,6 @@ class AdminModule:
 
             return 'Expiration date updated successfully', 200
 
-        def get_blueprint(self):
-            return self.bp
+    def get_blueprint(self):
+        return self.bp
 

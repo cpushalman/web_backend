@@ -67,5 +67,5 @@ class BSModule:
                 })
             return jsonify({'shortUrls': shortened_urls})
 
-        def get_blueprint(self):
-            return self.bp
+    def get_blueprint(self):
+        return self.bp

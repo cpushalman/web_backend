@@ -121,6 +121,6 @@ class AnalyticsModule:
             display={"shortCode": short, "totalClicks": clicks, "uniqueVisitors": url.get('unique_visitors',0), "deviceDistribution": device, "osDistribution": os, "browserDistribution": browser}
             return jsonify(display)
         
-        def get_blueprint(self):
-            return self.bp
+    def get_blueprint(self):
+        return self.bp
 

@@ -19,3 +19,9 @@ class MainApp:
 
     def get_app(self):
         return self.app
+    
+
+# This code initializes a Flask application and registers multiple modules (blueprints) to it.
+# Each module is defined in its own file within the `modules` directory.
+# The `MainApp` class encapsulates the application setup, including the registration of blueprints.
+# The `get_app` method returns the Flask application instance.    

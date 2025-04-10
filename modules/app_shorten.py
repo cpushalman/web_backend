@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # MongoDB connection
-client = MongoClient('os.getenv('MONGODB_URI')')
+client = MongoClient(os.getenv('MONGODB_URI'))
 db = client['shortly'] 
 collection = db['urls']
 
@@ -75,7 +75,7 @@ class ShortenModule:
                 "expiryDate": record['expiryDate'].isoformat()
             }), 200
 
-        @self.bp..route('/<string:short_code>', methods=['GET'])
+        @self.bp.route('/<string:short_code>', methods=['GET'])
         def redirect_to_original_url(short_code):
             record = collection.find_one({"shortCode": short_code})
             if not record:
@@ -85,5 +85,5 @@ class ShortenModule:
             collection.update_one({"shortCode": short_code}, {"$inc": {"clicks": 1}})
             return redirect(record['longUrl'])
 
-        def get_blueprint(self):
-                return self.bp
+    def get_blueprint(self):
+        return self.bp
