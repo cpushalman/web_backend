@@ -14,7 +14,7 @@ collection = db['urls']
 
 class BSModule:
     def __init__(self):
-        self.bp = Blueprint('bs', __name__, url_prefix='/bulk-shorten')
+        self.bp = Blueprint('bs', __name__, url_prefix='')
         self.register_routes()
     def register_routes(self):
         """Register routes for the bulk shorten module."""
