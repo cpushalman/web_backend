@@ -18,7 +18,7 @@ collection = db['urls']
 
 class AnalyticsModule:
     def __init__(self):
-        self.bp = Blueprint('analytics', __name__, url_prefix='/analytics')
+        self.bp = Blueprint('analytics', __name__, url_prefix='')
         self.register_routes()
     def register_routes(self):
         @self.bp.route('/<short>')
@@ -64,20 +64,26 @@ class AnalyticsModule:
                 "os": user_agent.os.family,
                 "browser": user_agent.browser.family,
                 "ip": ip_address,
-                "country": location_data["country"],                    "region": location_data["region"],
+                "country": location_data["country"],                    
+                "region": location_data["region"],
                 "city": location_data["city"]
             }
             #Getting unique visitors
             collection.update_one(
-                {"shortCode": short, "clicks.ip": {"$ne": ip_address}},  #Checking if IP does not already exist
-                {"$inc": {"unique_visitors": 1}},
+                {"shortCode": short, "click_data.ip": {"$ne": ip_address}},  #Checking if IP does not already exist
+                {"$inc": {"unique_visitors": 1}}, 
                 upsert=True
-            )
+                )
 
             #Updating MongoDB
             collection.update_one(
                 {"shortCode": short},
-                {"$push": {"click_data": click_data}}  
+                {"$push": {"click_data": click_data}}
+            )
+
+            collection.update_one(
+                {"shortCode": short},
+                {"$inc": {"clicks": 1}}
             )
     
             return redirect(url['longUrl'])
@@ -102,7 +108,7 @@ class AnalyticsModule:
                 return "No impressions yet"
             clicks=len(url.get('click_data'))
             impressions=url.get('impressions')
-            ctr=clicks/impressions
+            ctr=round(clicks/impressions,2)
             display={"shortCode": short, "ctr": ctr, "totalImpressions": impressions, "clicks": clicks}
             return jsonify(display)
         
@@ -112,7 +118,7 @@ class AnalyticsModule:
             url=collection.find_one({'shortCode':short})
             if not url:
                 return "Short code does not exist", 404
-            clicks=len(url['click_data'])
+            clicks=url['clicks']
     
             device = Counter(click['device'] for click in url['click_data'])
             os = Counter(click['os'] for click in url['click_data'])
