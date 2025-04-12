@@ -85,7 +85,7 @@ class AdminModule:
                         now = datetime.now(current_expiration_date.tzinfo)  # Use the same timezone as the parsed date
                         print(f"Current datetime: {now}")
 
-                        if current_expiration_date > now:
+                        if current_expiration_date < now:
                             return 'The current expiration date is still valid.', 200
                     except Exception as e:
                         print(f"Error while parsing expiryDate: {e}")

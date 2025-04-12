@@ -52,11 +52,12 @@ class BSModule:
                     url_mapping[url] = short_code
                     url_mapping[short_code] = url  # Reverse mapping for retrieval
 
-                    created_at = datetime.utcnow()
+                    created_at = datetime.utcnow().isoformat()
+                    expiry_date = (datetime.utcnow() + timedelta(days=90)).isoformat()
                     record = {"shortCode": short_code,
                         "longUrl": url,
                         "createdAt":created_at ,
-                        "expiryDate": created_at + timedelta(days=90),
+                        "expiryDate": expiry_date,
                         "clicks": 0}
                     collection.insert_one(record)
 
