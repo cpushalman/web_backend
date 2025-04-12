@@ -12,8 +12,8 @@
 - [X] Choose either Blueprint or newformat 
 - [X] MongoDB should be a ENVVAR
 - [X] Better naming instead of contributer initials
-- [ ] Overall API Testing
-- [ ] Fill up database with some sample data
+- [X] Overall API Testing
+- [X] Fill up database with some sample data
 
 Fun Challenge:
 - [X] Create rules to the branch such that no one can push to the main branch directly and if someone should make changes to the main branch they should make a pr from elsewhere and the PR should def be approved by `n` number of reviewers.
