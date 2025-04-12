@@ -39,11 +39,12 @@ class ShortenModule:
             else:
                 short_code = generate_short_code()
 
-            created_at = datetime.utcnow()
+            created_at = datetime.utcnow().isoformat()
+            expiry_date = (datetime.utcnow() + timedelta(days=90)).isoformat()
             record = {"shortCode": short_code,
                 "longUrl": long_url,
                 "createdAt":created_at ,
-                "expiryDate": created_at + timedelta(days=90),
+                "expiryDate": expiry_date,
                 "clicks": 0
             }
 
@@ -53,8 +54,8 @@ class ShortenModule:
                 "shortUrl": short_url,
                 "shortCode": short_code,
                 "longUrl": long_url,
-                "createdAt": record["createdAt"].isoformat(),
-                "expiryDate": record["expiryDate"].isoformat()
+                "createdAt": record["createdAt"],
+                "expiryDate": record["expiryDate"]
             }), 201
 
         @self.bp.route('/expand/<string:short_code>', methods=['GET'])
