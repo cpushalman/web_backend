@@ -13,7 +13,7 @@ collection = db['urls']
 
 class ShortenModule:
     def __init__(self):
-        self.bp = Blueprint('shorten', __name__, url_prefix='')
+        self.bp = Blueprint('shorten', __name__, url_prefix='/shorten')
         self.register_routes()
     def register_routes(self):
         # Generate a short code 

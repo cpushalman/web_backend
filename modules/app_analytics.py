@@ -18,7 +18,7 @@ collection = db['urls']
 
 class AnalyticsModule:
     def __init__(self):
-        self.bp = Blueprint('analytics', __name__, url_prefix='')
+        self.bp = Blueprint('analytics', __name__, url_prefix='/analytics')
         self.register_routes()
     def register_routes(self):
         @self.bp.route('/<short>')
