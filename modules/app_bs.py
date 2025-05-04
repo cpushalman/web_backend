@@ -21,6 +21,7 @@ class BSModule:
         @self.bp.route('/bulk-shorten', methods=['POST'])
         
         def bulk_shorten():
+            #TODO CH4 change the base_url, frontend team should provide this once they decide
             # In-memory storage for URL mappings
             url_mapping = {}
             base_url="https://short.ly/"

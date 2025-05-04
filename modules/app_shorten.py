@@ -60,6 +60,8 @@ class ShortenModule:
 
         @self.bp.route('/expand/<string:short_code>', methods=['GET'])
         def expand_url(short_code):
+            #! CH5 Has Error (TypeError and AttributeError)
+            #? CH6 does not increment clickcount or append click data to the record
             record = collection.find_one({"shortCode": short_code})
             if not record:
                 return jsonify({"error": "Short code does not exist"}), 404
@@ -78,6 +80,7 @@ class ShortenModule:
 
         @self.bp.route('/<string:short_code>', methods=['GET'])
         def redirect_to_original_url(short_code):
+            #* CH7 we wont need this, frontend will handle this
             record = collection.find_one({"shortCode": short_code})
             if not record:
                 return jsonify({"error": "Short code does not exist"}), 404
