@@ -9,7 +9,7 @@
   Have a separate class that connects for you and returns the `db` object or the `collections` object to where ever you import (that class) and use it
 </details>
 
-- [ ] Everyone `url_prefix`s like @PreethiCodes @ `./modules/app_admin.py:19`
+- [X] Everyone `url_prefix`s like @PreethiCodes @ `./modules/app_admin.py:19`
 - [ ] `modules/app_shorten.py:62` and `modules/app_analytics.py:25` both does 1 thing similar - returing full url given shortcode. I insist that only `modules/app_shorten.py:62` returns URL and calls `modules/app_analytics.py:25` itself. 
 <details>
   <summary>Hint</summary>
