@@ -44,6 +44,29 @@ class AnalyticsModule:
             url=collection.find_one({'shortCode':short})
             if not url:
                 return "URL not found",404
+            
+
+            #getting impression whenever unfurled
+            UNFURL_BOTS = ['facebookexternalhit','Twitterbot','Slackbot-LinkExpanding','Discordbot','WhatsApp','LinkedInBot']
+            user_agent = request.headers.get('User-Agent', '')
+            if any(bot in user_agent for bot in UNFURL_BOTS):
+                result= collection.update_one(
+                    {"shortCode": short},
+                    {"$inc": {"impressions": 1}},
+                    upsert=False
+                )
+
+                # Return simple HTML response
+                return f"""
+                <html>
+                <head>
+                    <title>{short} is unfurled</title>
+                </head>
+                <body>
+                    <h1>shortcode for this url: </h1>
+                </body>
+                </html>
+                """
     
             #Getting the data of a click
             now=datetime.utcnow()
@@ -92,17 +115,6 @@ class AnalyticsModule:
     
             return url['longUrl']
         
-        #Getting impressions for ctr
-        @self.bp.route('/impression/<short>')
-        def count_impression(short):
-            #! CH3 Find out what impressions actually mean. You'll scrap this route once you know what it means.
-            # Hint: Its something to do with what the link does on Whatsapp, Discord, Slack, etc.
-            collection.update_one(
-                {"shortCode": short},
-                {"$inc": {"impressions": 1}}, 
-                upsert=True 
-            )
-            return "Impression counted", 200
         #Displaying ctr
         @self.bp.route('/ctr/<short>')
         def getctr(short):
