@@ -21,7 +21,7 @@
 
 ### Module-wise Changes required:
 
-- [ ] `./modules/app_analytics.py` has following changes - CH1, CH2, CH3
+- [X] `./modules/app_analytics.py` has following changes - CH1, CH2, CH3
 - [ ] `./modules/app_bs.py` has following changes - CH4
 - [ ] `./modules/app_shorten.py` has following changes - CH5, CH6, CH7
 
@@ -35,14 +35,6 @@
 
 Let's see who can figure this out first. If you are the one, mark it as completed and give an explaination below. Attach any relevant images if required. 
 
-[Hi, Subha here
-Explanation: All the IP addresses recorded are 127.0.0.1 which is localhost (loopback). Since the request is being made from the computer to the computer itself it loops back and does not go out to the public internet (so no public IP).
-How to fix this? We can go through external tunneling service while making the request. For example, I used ngrok. So while making a request using ngrok’s public URL instead of localhost, it goes through ngrok’s servers first. This makes it seem like an actual external request. (If you check the database for the shortCode:ZJiUAQ, https://www.subhatesting.com, under click_data, objects 13,14,15,16 have this: ip:"49.47.217.189",country:"India", region:"Tamil Nadu", city:"Coimbatore")
-
-so basically:
-
-initially: Postman --> Flask (on the same Computer)
-now: Postman --> ngrok --> Flask sees a public IP from the X-Forwarded-For header]
 
 I'll drop a hint on Wednesday
 
@@ -52,7 +44,16 @@ I'll drop a hint on Wednesday
   Wait till Wednesday :))
 </details>
 
-### Explaination:
+### Explaination: 
+[Hi, Subha here
+Explanation: All the IP addresses recorded are 127.0.0.1 which is localhost (loopback). Since the request is being made from the computer to the computer itself it loops back and does not go out to the public internet (so no public IP).
+How to fix this? We can go through external tunneling service while making the request. For example, I used ngrok. So while making a request using ngrok’s public URL instead of localhost, it goes through ngrok’s servers first. This makes it seem like an actual external request. (If you check the database for the shortCode:ZJiUAQ, https://www.subhatesting.com, under click_data, objects 13,14,15,16 have this: ip:"49.47.217.189",country:"India", region:"Tamil Nadu", city:"Coimbatore")
+
+so basically:
+
+initially: Postman --> Flask (on the same Computer)
+now: Postman --> ngrok --> Flask sees a public IP from the X-Forwarded-For header]
+
 
 **Fun Challenges**
 ---
