@@ -45,7 +45,8 @@ class ShortenModule:
                 "longUrl": long_url,
                 "createdAt":created_at ,
                 "expiryDate": expiry_date,
-                "clicks": 0
+                "clicks": 0,
+                "impressions": 0
             }
 
             collection.insert_one(record)
