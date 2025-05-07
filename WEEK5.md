@@ -3,6 +3,7 @@
   
   [The users can now copy the sample.env file and paste it inside the .env files and replace the placeholders with the required details ]
 - [X] dont use port 5000, use something else
+      
   [The ports can now be modified with different port numbers which makes it possible for us to run in any port]
 - [ ] find a way for the application to print any problems in MongoDB connection (like bad authentication, connection timeout) without having to test a route for that
 - [ ] Don't connect to the database in every module 
