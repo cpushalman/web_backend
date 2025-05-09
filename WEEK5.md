@@ -5,7 +5,7 @@
 - [X] dont use port 5000, use something else
       
   [The ports can now be modified with different port numbers which makes it possible for us to run in any port]
-- [ ] find a way for the application to print any problems in MongoDB connection (like bad authentication, connection timeout) without having to test a route for that
+- [X] find a way for the application to print any problems in MongoDB connection (like bad authentication, connection timeout) without having to test a route for that
 - [ ] Don't connect to the database in every module 
 <details>
   <summary>Hint</summary>
