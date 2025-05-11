@@ -20,7 +20,11 @@ class ShortenModule:
         def generate_short_code():
             from random import choices
             import string
-            return ''.join(choices(string.ascii_letters + string.digits, k=6))
+            shortcode = ''.join(choices(string.ascii_letters + string.digits, k=6))
+            if collection.find_one({"shortCode": short_code}):
+                return generate_unique_short_code()
+            else:
+                return shortcode
 
         @self.bp.route('/shorten', methods=['POST'])
         def shorten_url():
@@ -31,13 +35,14 @@ class ShortenModule:
             if not long_url:
                 return jsonify({"error": "Long URL is required"}), 400
 
-            # Check for custom alias
             if custom_alias:
                 if collection.find_one({"shortCode": custom_alias}):
-                    return jsonify({"error": "Custom alias already in use"}), 400
-                short_code = custom_alias
+                    return jsonify({"error": "Custom alias already in use. Hence ramdom short code is assigned."}), 400
+                    short_code = shortcode
+                else:
+                    short_code = custom_alias
             else:
-                short_code = generate_short_code()
+                short_code = shortcode
 
             created_at = datetime.utcnow().isoformat()
             expiry_date = (datetime.utcnow() + timedelta(days=90)).isoformat()
