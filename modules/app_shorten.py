@@ -20,11 +20,11 @@ class ShortenModule:
         def generate_short_code():
             from random import choices
             import string
-            shortcode = ''.join(choices(string.ascii_letters + string.digits, k=6))
+            short_code = ''.join(choices(string.ascii_letters + string.digits, k=6))
             if collection.find_one({"shortCode": short_code}):
-                return generate_unique_short_code()
+                return generate_short_code()  # Fixed recursive call
             else:
-                return shortcode
+                return short_code
 
         @self.bp.route('/shorten', methods=['POST'])
         def shorten_url():
@@ -37,18 +37,18 @@ class ShortenModule:
 
             if custom_alias:
                 if collection.find_one({"shortCode": custom_alias}):
-                    return jsonify({"error": "Custom alias already in use. Hence ramdom short code is assigned."}), 400
-                    short_code = shortcode
+                    return jsonify({"error": "Custom alias already in use. A random short code has been assigned."}), 400
                 else:
                     short_code = custom_alias
             else:
-                short_code = shortcode
+                short_code = generate_short_code()  # Fixed variable usage
 
             created_at = datetime.utcnow().isoformat()
             expiry_date = (datetime.utcnow() + timedelta(days=90)).isoformat()
-            record = {"shortCode": short_code,
+            record = {
+                "shortCode": short_code,
                 "longUrl": long_url,
-                "createdAt":created_at ,
+                "createdAt": created_at,
                 "expiryDate": expiry_date,
                 "clicks": 0,
                 "impressions": 0
@@ -70,7 +70,7 @@ class ShortenModule:
             if not result:
                 return jsonify({"error": "404 Not Found – Short code does not exist"}), 404
             expiry_date = result.get("expiryDate")
-            if expiry_date and isoparse(expiry_date) < datetime.utcnow():
+            if expiry_date and datetime.fromisoformat(expiry_date) < datetime.utcnow():
                 return jsonify({"error": "410 Gone – URL has expired"}), 410
             return jsonify({
                 "longUrl": result["longUrl"],
