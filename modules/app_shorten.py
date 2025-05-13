@@ -22,7 +22,7 @@ class ShortenModule:
             import string
             short_code = ''.join(choices(string.ascii_letters + string.digits, k=6))
             if collection.find_one({"shortCode": short_code}):
-                return generate_short_code()  # Fixed recursive call
+                return generate_short_code()
             else:
                 return short_code
 
