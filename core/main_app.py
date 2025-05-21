@@ -7,18 +7,15 @@ from modules.app_analytics import AnalyticsModule
 from modules.app_shorten import ShortenModule
 import os
 from pymongo import MongoClient, errors
+from flask_cors import CORS
 
 
-mongo_uri=os.getenv("MONGO_URI", "mongodb+srv://ahamed:ahamed@shalman.p87zdde.mongodb.net/")
-client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
-client.admin.command('ping')   
-db = client['shortly']
-collection = db['urls']
 
 
 class MainApp:
     def __init__(self):
         self.app = Flask(__name__)
+        CORS(self.app,origins=["http://localhost:5173"])
         self.register_modules()
         self.register_routes()
         self._mongo_connection()
@@ -28,7 +25,7 @@ class MainApp:
     def _mongo_connection(self):
         try:
 
-            mongo_uri=os.getenv("MONGO_URI", "mongodb+srv://ahamed:ahamed@shalman.p87zdde.mongodb.net/")
+            mongo_uri=os.getenv("MONGO_URI")
             print(mongo_uri)
             client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
             client.admin.command('ping')   
