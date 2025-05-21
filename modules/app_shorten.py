@@ -1,9 +1,12 @@
-from flask import Flask, request, jsonify, redirect
+from flask import Flask, request, jsonify, redirect, Response
 from pymongo import MongoClient
 from datetime import datetime, timedelta
 from flask import Blueprint
 import os
+from flask_cors import CORS
+import requests
 from dotenv import load_dotenv
+import base64
 load_dotenv()
 
 # MongoDB connection
@@ -14,6 +17,7 @@ collection = db['urls']
 class ShortenModule:
     def __init__(self):
         self.bp = Blueprint('shorten', __name__, url_prefix='/shorten')
+        CORS(self.bp)
         self.register_routes()
     def register_routes(self):
         # Generate a short code 
@@ -79,6 +83,18 @@ class ShortenModule:
                 "createdAt": result["createdAt"],
                 "expiryDate": result["expiryDate"]
             })
+        @self.bp.route('/qr',methods=['POST'])
+        def qr():
+            data = request.json
+            url = "https://api.qrcode-monkey.com//qr/custom"
+            resp = requests.post(url, json=data)
+            imageurl=resp.json().get("imageUrl")
+            imageurl = "https:" + imageurl
+            img_resp = requests.get(imageurl)
+            img_base64 = base64.b64encode(img_resp.content).decode('utf-8')
+            
+            print(imageurl)
+            return jsonify({"base64": img_base64})
             
     def get_blueprint(self):
         return self.bp
