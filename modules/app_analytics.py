@@ -127,8 +127,8 @@ class AnalyticsModule:
                 return "No impressions yet"
             clicks=len(url.get('click_data'))
             impressions=url.get('impressions')
-            ctr=round(clicks/impressions,2)
-            display={"shortCode": short, "ctr": ctr, "totalImpressions": impressions, "clicks": clicks}
+            ctr=round(clicks/(clicks+impressions),2)
+            display={"shortCode": short, "ctr": ctr, "totalImpressions": clicks+impressions, "clicks": clicks}
             return jsonify(display)
         
         #Displaying analytics
