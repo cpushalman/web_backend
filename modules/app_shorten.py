@@ -29,11 +29,22 @@ class ShortenModule:
                 return generate_short_code()
             else:
                 return short_code
+        def qr(payload):
+            data = payload
+            url = "https://api.qrcode-monkey.com//qr/custom"
+            resp = requests.post(url, json=data)
+            imageurl=resp.json().get("imageUrl")
+            imageurl = "https:" + imageurl
+            img_resp = requests.get(imageurl)
+            img_base64 = base64.b64encode(img_resp.content).decode('utf-8')
+            return img_base64
 
         @self.bp.route('/shorten', methods=['POST'])
         def shorten_url():
             data = request.json
             long_url = data.get('longUrl')
+            qrRender=data.get('qrRender')
+
             custom_alias = data.get('customAlias')
 
             if not long_url:
@@ -49,23 +60,33 @@ class ShortenModule:
 
             created_at = datetime.utcnow().isoformat()
             expiry_date = (datetime.utcnow() + timedelta(days=90)).isoformat()
+            short_url = f"http://short.ly/{short_code}"
+            if not isinstance(qrRender, dict):
+                qrRender = {}
+            qrRender["data"] = short_url
+            try:
+                base64img = qr(qrRender)
+                
+            except Exception as e:
+                return jsonify({"error": "QR code generation failed", "details": str(e)}), 500
             record = {
                 "shortCode": short_code,
                 "longUrl": long_url,
                 "createdAt": created_at,
                 "expiryDate": expiry_date,
                 "clicks": 0,
-                "impressions": 0
+                "impressions": 0,
+                "base64img": base64img               
             }
 
             collection.insert_one(record)
-            short_url = f"http://short.ly/{short_code}"
             return jsonify({
                 "shortUrl": short_url,
                 "shortCode": short_code,
                 "longUrl": long_url,
                 "createdAt": record["createdAt"],
-                "expiryDate": record["expiryDate"]
+                "expiryDate": record["expiryDate"],
+                "base64img": base64img
             }), 201
 
         @self.bp.route('/expand/<string:short_code>', methods=['GET'])
@@ -83,18 +104,7 @@ class ShortenModule:
                 "createdAt": result["createdAt"],
                 "expiryDate": result["expiryDate"]
             })
-        @self.bp.route('/qr',methods=['POST'])
-        def qr():
-            data = request.json
-            url = "https://api.qrcode-monkey.com//qr/custom"
-            resp = requests.post(url, json=data)
-            imageurl=resp.json().get("imageUrl")
-            imageurl = "https:" + imageurl
-            img_resp = requests.get(imageurl)
-            img_base64 = base64.b64encode(img_resp.content).decode('utf-8')
-            
-            print(imageurl)
-            return jsonify({"base64": img_base64})
+
             
     def get_blueprint(self):
         return self.bp

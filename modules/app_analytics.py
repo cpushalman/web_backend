@@ -160,7 +160,8 @@ class AnalyticsModule:
 "longUrl": url["longUrl"],
 "createdAt": url["createdAt"],
 "expiryDate": url["expiryDate"],
-"clicks": url["clicks"]
+"clicks": url["clicks"],
+"base64img":url["base64img"]
             }
 
             return jsonify(recent_url), 200
