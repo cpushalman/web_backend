@@ -5,14 +5,14 @@ from flask import Blueprint
 import os
 from flask_cors import CORS
 import requests
-from dotenv import load_dotenv
 import base64
+from dotenv import load_dotenv
 
 load_dotenv()
+from modules.db import db
 
-# MongoDB connection
-client = MongoClient(os.getenv('MONGODB_URI'))
-db = client['shortly'] 
+
+
 collection = db['urls']
 collection.create_index("shortCode", unique=True)
 
