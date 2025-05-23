@@ -96,7 +96,8 @@ class AdminModule:
                 # Update the expiration date in the database
                 try:
                     result = collection.update_one(
-                        {'shortCode': short_code},
+                        {'shortCode': short_code,
+                        "expiryDate": current_expiration},
                         {'$set': {'expiryDate': new_expiration_date}}
                     )
                 except Exception as e:
