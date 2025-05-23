@@ -5,9 +5,10 @@ from core.main_app import MainApp
 
 load_dotenv()
 
+main_app = MainApp()
+app = main_app.get_app()
+
 if __name__ == "__main__":
-    main_app = MainApp()
-    app = main_app.get_app()
-    port = int(os.getenv("PORT", 5000))
+    port = int(os.getenv("PORT", 8000))
     app.run(debug=True)
     

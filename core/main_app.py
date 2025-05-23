@@ -53,7 +53,7 @@ class MainApp:
     def register_routes(self):
         @self.app.route("/")
         def home():
-            return "Welcome to the Main App!"
+            return "This is docker testing!"
         @self.app.route("/<short>")
         def redirect_to_long_url(short):
             url = self.collection.find_one({'shortCode': short})
