@@ -5,12 +5,17 @@ from flask import Blueprint
 import os
 from flask_cors import CORS
 import requests
-from dotenv import load_dotenv
 import base64
+from dotenv import load_dotenv
+
+load_dotenv()
 from modules.db import db
 
 
+
 collection = db['urls']
+collection.create_index("shortCode", unique=True)
+
 
 class ShortenModule:
     def __init__(self):
@@ -22,11 +27,12 @@ class ShortenModule:
         def generate_short_code():
             from random import choices
             import string
-            short_code = ''.join(choices(string.ascii_letters + string.digits, k=6))
-            if collection.find_one({"shortCode": short_code}):
-                return generate_short_code()
-            else:
-                return short_code
+            for _ in range(5):
+                short_code = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+                if not collection.find_one({"shortCode": short_code}):
+                    return short_code
+            raise Exception("Could not generate a unique short code.")
+
         def qr(payload):
             data = payload
             url = "https://api.qrcode-monkey.com//qr/custom"
@@ -50,7 +56,7 @@ class ShortenModule:
 
             if custom_alias:
                 if collection.find_one({"shortCode": custom_alias}):
-                    return jsonify({"error": "Custom alias already in use. A random short code has been assigned."}), 400
+                    return jsonify({"error": "Custom alias already in use."}), 400
                 else:
                     short_code = custom_alias
             else:
@@ -76,16 +82,19 @@ class ShortenModule:
                 "impressions": 0,
                 "base64img": base64img               
             }
+            try:
 
-            collection.insert_one(record)
-            return jsonify({
-                "shortUrl": short_url,
-                "shortCode": short_code,
-                "longUrl": long_url,
-                "createdAt": record["createdAt"],
-                "expiryDate": record["expiryDate"],
-                "base64img": base64img
-            }), 201
+                collection.insert_one(record)
+                return jsonify({
+                    "shortUrl": short_url,
+                    "shortCode": short_code,
+                    "longUrl": long_url,
+                    "createdAt": record["createdAt"],
+                    "expiryDate": record["expiryDate"],
+                    "base64img": base64img
+                }), 201
+            except Exception as e:
+                return jsonify({"error": "Database insert failed", "details": str(e)}), 500    
 
         @self.bp.route('/expand/<string:short_code>', methods=['GET'])
         def expand_url(short_code):

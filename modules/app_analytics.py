@@ -87,13 +87,28 @@ class AnalyticsModule:
             #unique visitors
             collection.update_one(
                 {
-                    "shortCode": short,
-                    "unique_visitors_list": {"$ne": ip_address}
+                    "shortCode": short},
+                     [
+        {
+            "$set": {
+                "unique_visitors_list": {
+                    "$cond": {
+                        "if": {"$in": [ip_address, "$unique_visitors_list"]},
+                        "then": "$unique_visitors_list",  # No change
+                        "else": {"$concatArrays": ["$unique_visitors_list", [ip_address]]}  # Add new IP
+                    }
                 },
-                {
-                    "$addToSet": {"unique_visitors_list": ip_address},
-                    "$inc": {"unique_visitors": 1}
+                "unique_visitors": {
+                    "$cond": {
+                        "if": {"$in": [ip_address, "$unique_visitors_list"]},
+                        "then": "$unique_visitors",  # No increment
+                        "else": {"$add": ["$unique_visitors", 1]}  # Increment
+                    }
                 }
+            }
+        }
+    ]
+                   
                 )
 
             #adding click data
