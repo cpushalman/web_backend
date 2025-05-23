@@ -7,8 +7,7 @@ from flask_cors import CORS
 import requests
 from dotenv import load_dotenv
 import base64
-import random
-import string
+
 load_dotenv()
 
 # MongoDB connection
@@ -26,6 +25,8 @@ class ShortenModule:
     def register_routes(self):
         # Generate a short code 
         def generate_short_code():
+            from random import choices
+            import string
             for _ in range(5):
                 short_code = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
                 if not collection.find_one({"shortCode": short_code}):
