@@ -5,11 +5,8 @@ import random
 import string
 from dotenv import load_dotenv
 import os
+from modules.db import db
 
-load_dotenv()
-# MongoDB connection
-client = MongoClient(os.getenv('MONGODB_URI'))
-db = client['shortly']
 collection = db['urls']
 
 class BSModule:
