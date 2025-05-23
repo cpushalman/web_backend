@@ -7,13 +7,8 @@ import requests
 from collections import Counter
 import os
 from dotenv import load_dotenv
+from modules.db import db
 
-load_dotenv()
-
-
-# MongoDB connection
-client = MongoClient(os.getenv('MONGODB_URI'))
-db = client['shortly']
 collection = db['urls']
 
 class AnalyticsModule:
@@ -92,13 +87,28 @@ class AnalyticsModule:
             #unique visitors
             collection.update_one(
                 {
-                    "shortCode": short,
-                    "unique_visitors_list": {"$ne": ip_address}
+                    "shortCode": short},
+                     [
+        {
+            "$set": {
+                "unique_visitors_list": {
+                    "$cond": {
+                        "if": {"$in": [ip_address, "$unique_visitors_list"]},
+                        "then": "$unique_visitors_list",  # No change
+                        "else": {"$concatArrays": ["$unique_visitors_list", [ip_address]]}  # Add new IP
+                    }
                 },
-                {
-                    "$addToSet": {"unique_visitors_list": ip_address},
-                    "$inc": {"unique_visitors": 1}
+                "unique_visitors": {
+                    "$cond": {
+                        "if": {"$in": [ip_address, "$unique_visitors_list"]},
+                        "then": "$unique_visitors",  # No increment
+                        "else": {"$add": ["$unique_visitors", 1]}  # Increment
+                    }
                 }
+            }
+        }
+    ]
+                   
                 )
 
             #adding click data
@@ -127,8 +137,8 @@ class AnalyticsModule:
                 return "No impressions yet"
             clicks=len(url.get('click_data'))
             impressions=url.get('impressions')
-            ctr=round(clicks/impressions,2)
-            display={"shortCode": short, "ctr": ctr, "totalImpressions": impressions, "clicks": clicks}
+            ctr=round(clicks/(clicks+impressions),2)
+            display={"shortCode": short, "ctr": ctr, "totalImpressions": clicks+impressions, "clicks": clicks}
             return jsonify(display)
         
         #Displaying analytics
@@ -146,6 +156,39 @@ class AnalyticsModule:
 
             display={"shortCode": short, "totalClicks": clicks, "uniqueVisitors": url.get('unique_visitors',0), "deviceDistribution": device, "osDistribution": os, "browserDistribution": browser}
             return jsonify(display)
+        @self.bp.route('/recent')
+        def recent():
+# Find the most recently created record using _id
+            url = collection.find_one(sort=[("_id", -1)]) # Sort by _id in descending order
+
+            if not url:
+                return jsonify({"error": "No records found"}), 404
+
+# Format the response
+            recent_url = {
+"shortCode": url["shortCode"],
+"longUrl": url["longUrl"],
+"createdAt": url["createdAt"],
+"expiryDate": url["expiryDate"],
+"clicks": url["clicks"],
+"base64img":url["base64img"]
+            }
+
+            return jsonify(recent_url), 200
+        @self.bp.route('/all')
+        def all():
+            urls = collection.find()
+            all_urls = []
+            for url in urls:
+                all_urls.append({
+                    "shortCode": url.get("shortCode", ""),
+                    "longUrl": url.get("longUrl", ""),
+                    "createdAt": url.get("createdAt", ""),
+                    "expiryDate": url.get("expiryDate", ""),
+                    "clicks": url.get("clicks", 0)
+                })
+            return jsonify(all_urls), 200
+
         
     def get_blueprint(self):
         return self.bp

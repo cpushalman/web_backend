@@ -4,13 +4,8 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 from dateutil.parser import parse
+from modules.db import db
 
-load_dotenv()
-
-
-# MongoDB connection
-client = MongoClient(os.getenv('MONGODB_URI'))
-db = client['shortly']
 collection = db['urls']
 
 
@@ -96,7 +91,8 @@ class AdminModule:
                 # Update the expiration date in the database
                 try:
                     result = collection.update_one(
-                        {'shortCode': short_code},
+                        {'shortCode': short_code,
+                        "expiryDate": current_expiration},
                         {'$set': {'expiryDate': new_expiration_date}}
                     )
                 except Exception as e:

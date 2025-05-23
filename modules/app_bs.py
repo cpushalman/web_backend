@@ -6,7 +6,10 @@ import string
 from dotenv import load_dotenv
 import os
 from modules.db import db
+
 import pymongo.errors
+
+
 
 collection = db['urls']
 
