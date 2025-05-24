@@ -18,8 +18,8 @@ class MainApp:
     def __init__(self):
         self.app = Flask(__name__)
         CORS(self.app)
-        self.app.config["SECRET_KEY"] = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        self.app.config["JWT_SECRET_KEY"] = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        self.app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+        self.app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
         jwt = JWTManager(self.app)
         self.register_modules()
         self.register_routes()
