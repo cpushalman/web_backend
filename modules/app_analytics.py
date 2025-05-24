@@ -118,6 +118,7 @@ class AnalyticsModule:
         #Displaying ctr
         @self.bp.route('/ctr/<short>')
         def getctr(short):
+            print(short)
             url=collection.find_one({'shortCode':short})
             if not url:
                 return "short code not found"
@@ -161,7 +162,7 @@ class AnalyticsModule:
 "createdAt": url["createdAt"],
 "expiryDate": url["expiryDate"],
 "clicks": url["clicks"],
-"base64img":url["base64img"]
+"base64img":url.get("base64img","")
             }
 
             return jsonify(recent_url), 200

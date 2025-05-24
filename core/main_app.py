@@ -15,7 +15,7 @@ from flask_cors import CORS
 class MainApp:
     def __init__(self):
         self.app = Flask(__name__)
-        CORS(self.app,origins=["http://localhost:5173"])
+        CORS(self.app)
         self.register_modules()
         self.register_routes()
         self._mongo_connection()
