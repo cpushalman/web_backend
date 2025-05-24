@@ -7,13 +7,8 @@ import requests
 from collections import Counter
 import os
 from dotenv import load_dotenv
+from modules.db import db
 
-load_dotenv()
-
-
-# MongoDB connection
-client = MongoClient(os.getenv('MONGODB_URI'))
-db = client['shortly']
 collection = db['urls']
 
 class AnalyticsModule:
@@ -92,13 +87,28 @@ class AnalyticsModule:
             #unique visitors
             collection.update_one(
                 {
-                    "shortCode": short,
-                    "unique_visitors_list": {"$ne": ip_address}
+                    "shortCode": short},
+                     [
+        {
+            "$set": {
+                "unique_visitors_list": {
+                    "$cond": {
+                        "if": {"$in": [ip_address, "$unique_visitors_list"]},
+                        "then": "$unique_visitors_list",  # No change
+                        "else": {"$concatArrays": ["$unique_visitors_list", [ip_address]]}  # Add new IP
+                    }
                 },
-                {
-                    "$addToSet": {"unique_visitors_list": ip_address},
-                    "$inc": {"unique_visitors": 1}
+                "unique_visitors": {
+                    "$cond": {
+                        "if": {"$in": [ip_address, "$unique_visitors_list"]},
+                        "then": "$unique_visitors",  # No increment
+                        "else": {"$add": ["$unique_visitors", 1]}  # Increment
+                    }
                 }
+            }
+        }
+    ]
+                   
                 )
 
             #adding click data
@@ -113,7 +123,7 @@ class AnalyticsModule:
                 {"$inc": {"clicks": 1}}
             )
     
-            return url['longUrl']
+            return redirect(url['longUrl'])
         
         #Displaying ctr
         @self.bp.route('/ctr/<short>')

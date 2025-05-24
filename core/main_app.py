@@ -9,6 +9,17 @@ import os
 from pymongo import MongoClient, errors
 from flask_cors import CORS
 
+from flask_jwt_extended import JWTManager
+from app.user_management.routes import auth
+
+app = Flask(__name__)
+app.config["JWT_SECRET_KEY"] = "your-secret-key"
+jwt = JWTManager(app)
+
+app.register_blueprint(auth, url_prefix="/auth")
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
 
 
@@ -71,6 +82,8 @@ class MainApp:
         
     def get_app(self):
         return self.app
+    
+
     
 
 # This code initializes a Flask application and registers multiple modules (blueprints) to it.
