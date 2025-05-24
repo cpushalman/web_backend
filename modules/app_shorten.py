@@ -7,6 +7,7 @@ from flask_cors import CORS
 import requests
 import base64
 from dotenv import load_dotenv
+from bson.objectid import ObjectId
 
 load_dotenv()
 from modules.db import db
@@ -48,6 +49,8 @@ class ShortenModule:
             data = request.json
             long_url = data.get('longUrl')
             qrRender=data.get('qrRender')
+            userid=data.get('userid')
+            userid=ObjectId(str(userid))
 
             custom_alias = data.get('customAlias')
 
@@ -74,6 +77,7 @@ class ShortenModule:
             except Exception as e:
                 return jsonify({"error": "QR code generation failed", "details": str(e)}), 500
             record = {
+                "userid":userid,
                 "shortCode": short_code,
                 "longUrl": long_url,
                 "createdAt": created_at,

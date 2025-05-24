@@ -7,6 +7,7 @@ import requests
 from collections import Counter
 import os
 from dotenv import load_dotenv
+from bson.objectid import ObjectId
 from modules.db import db
 
 collection = db['urls']
@@ -157,10 +158,14 @@ class AnalyticsModule:
 
             display={"shortCode": short, "totalClicks": clicks, "uniqueVisitors": url.get('unique_visitors',0), "deviceDistribution": device, "osDistribution": os, "browserDistribution": browser}
             return jsonify(display)
-        @self.bp.route('/recent')
+        @self.bp.route('/recent',methods=['POST'])
         def recent():
+            data=request.json
+            userid=data.get("userid")
+            userid=ObjectId(str(userid))
+
 # Find the most recently created record using _id
-            url = collection.find_one(sort=[("_id", -1)]) # Sort by _id in descending order
+            url = collection.find_one({"userid":userid},sort=[("_id", -1)]) # Sort by _id in descending order
 
             if not url:
                 return jsonify({"error": "No records found"}), 404
@@ -176,9 +181,13 @@ class AnalyticsModule:
             }
 
             return jsonify(recent_url), 200
-        @self.bp.route('/all')
+        @self.bp.route('/all',methods=['POST'])
         def all():
-            urls = collection.find()
+            data=request.json
+            userid=data.get("userid")
+            userid=ObjectId(str(userid))
+
+            urls = collection.find({"userid": userid})
             all_urls = []
             for url in urls:
                 all_urls.append({

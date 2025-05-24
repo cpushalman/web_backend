@@ -24,7 +24,7 @@ def register():
     password = data.get("password")
 
     if users.find_one({"email": email}):
-        return jsonify({"msg": "User already exists"}), 400
+        return jsonify({"msg": "User already exists"}),401
 
     pw_hash = bcrypt.generate_password_hash(password).decode('utf-8')
     user = {
