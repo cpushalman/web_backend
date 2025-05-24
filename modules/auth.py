@@ -7,6 +7,7 @@ from bson.objectid import ObjectId
 import re
 import os
 from dotenv import load_dotenv
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from modules.db import db
 
@@ -49,6 +50,13 @@ class AuthModule:
 
             access_token = create_access_token(identity=str(user["_id"]))
             return jsonify(access_token=access_token), 200
+        @auth.route('/userid', methods=['GET'])
+        @jwt_required()
+        def protected(self):
+            user_id = get_jwt_identity()
+            return jsonify({"msg": "Token is valid!", "user_id": user_id}), 200
 
         def get_blueprint(self):
             return self.bp
+
+
