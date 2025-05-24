@@ -73,6 +73,8 @@ class MainApp:
         return self.app
     
 
+    
+
 # This code initializes a Flask application and registers multiple modules (blueprints) to it.
 # Each module is defined in its own file within the `modules` directory.
 # The `MainApp` class encapsulates the application setup, including the registration of blueprints.
