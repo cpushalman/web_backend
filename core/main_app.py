@@ -45,6 +45,7 @@ class MainApp:
         return None
 
     def register_modules(self):
+        self.app.register_blueprint(AuthModule().get_blueprint())
         self.app.register_blueprint(BSModule().get_blueprint())
         self.app.register_blueprint(AdminModule().get_blueprint())
         self.app.register_blueprint(AnalyticsModule().get_blueprint())
