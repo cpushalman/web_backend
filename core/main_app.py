@@ -11,7 +11,7 @@ from pymongo import MongoClient, errors
 from flask_cors import CORS
 
 from flask_jwt_extended import JWTManager
-from modules.auth import auth
+
 
 
 class MainApp:
