@@ -10,23 +10,16 @@ from pymongo import MongoClient, errors
 from flask_cors import CORS
 
 from flask_jwt_extended import JWTManager
-from app.user_management.routes import auth
-
-app = Flask(__name__)
-app.config["JWT_SECRET_KEY"] = "your-secret-key"
-jwt = JWTManager(app)
-
-app.register_blueprint(auth, url_prefix="/auth")
-
-if __name__ == "__main__":
-    app.run(debug=True)
-
+from user_management.routes import auth
 
 
 class MainApp:
     def __init__(self):
         self.app = Flask(__name__)
         CORS(self.app)
+        self.app.config["SECRET_KEY"] = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        self.app.config["JWT_SECRET_KEY"] = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        jwt = JWTManager(self.app)
         self.register_modules()
         self.register_routes()
         self._mongo_connection()
@@ -56,10 +49,12 @@ class MainApp:
         return None
 
     def register_modules(self):
+        self.app.register_blueprint(auth, url_prefix="/auth")
         self.app.register_blueprint(BSModule().get_blueprint())
         self.app.register_blueprint(AdminModule().get_blueprint())
         self.app.register_blueprint(AnalyticsModule().get_blueprint())
         self.app.register_blueprint(ShortenModule().get_blueprint())
+        print(self.app.url_map)
 
     def register_routes(self):
         @self.app.route("/")

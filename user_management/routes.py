@@ -7,11 +7,13 @@ from bson.objectid import ObjectId
 import re
 import os
 from dotenv import load_dotenv
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from modules.db import db
 
 bcrypt = Bcrypt()
 auth = Blueprint('auth', __name__)
+
 
 users = db["users"]  # MongoDB users collection
 
@@ -46,4 +48,8 @@ def login():
 
     access_token = create_access_token(identity=str(user["_id"]))
     return jsonify(access_token=access_token), 200
-
+@auth.route('/userid', methods=['GET'])
+@jwt_required()
+def protected():
+    user_id = get_jwt_identity()
+    return jsonify({"msg": "Token is valid!", "user_id": user_id}), 200

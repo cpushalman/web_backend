@@ -28,7 +28,7 @@ class ShortenModule:
             from random import choices
             import string
             for _ in range(5):
-                short_code = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+                short_code = ''.join(choices(string.ascii_letters + string.digits, k=6))
                 if not collection.find_one({"shortCode": short_code}):
                     return short_code
             raise Exception("Could not generate a unique short code.")
