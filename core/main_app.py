@@ -5,6 +5,7 @@ from modules.app_bs import BSModule
 from modules.app_admin import AdminModule
 from modules.app_analytics import AnalyticsModule
 from modules.app_shorten import ShortenModule
+from modules.auth import AuthModule
 import os
 from pymongo import MongoClient, errors
 from flask_cors import CORS
