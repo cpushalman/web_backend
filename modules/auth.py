@@ -18,7 +18,7 @@ class AuthModule:
         self.register_routes()
         users = db["users"]  # MongoDB users collection
         
-       @self.bp.route('/register', methods=['POST'])
+        @self.bp.route('/register', methods=['POST'])
         def register():
             data = request.get_json()
             email = data.get("email")
