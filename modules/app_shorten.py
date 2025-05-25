@@ -8,6 +8,8 @@ import requests
 import base64
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
+from random import choices
+import string
 
 load_dotenv()
 from modules.db import db
@@ -26,8 +28,6 @@ class ShortenModule:
     def register_routes(self):
         # Generate a short code 
         def generate_short_code():
-            from random import choices
-            import string
             for _ in range(5):
                 short_code = ''.join(choices(string.ascii_letters + string.digits, k=6))
                 if not collection.find_one({"shortCode": short_code}):
