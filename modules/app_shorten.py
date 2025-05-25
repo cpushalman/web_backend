@@ -84,7 +84,10 @@ class ShortenModule:
                 "expiryDate": expiry_date,
                 "clicks": 0,
                 "impressions": 0,
-                "base64img": base64img               
+                "base64img": base64img,
+                "unique_visitors_list":[],
+                "unique_visitors":0
+
             }
             try:
 
