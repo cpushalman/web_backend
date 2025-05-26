@@ -8,10 +8,26 @@ import re
 import os
 from dotenv import load_dotenv
 from flask_jwt_extended import jwt_required, get_jwt_identity
+import uuid
+import smtplib
+from email.mime.text import MIMEText
 
 from modules.db import db
 
 bcrypt = Bcrypt()
+def send_email(to_email,token):
+        activation_link=f"http://localhost:5000/activate/{token}"
+        body = f"Click to activate your account: {activation_link}"
+        msg = MIMEText(body)
+        msg['Subject'] = "Activate Your Account"
+        msg['From'] = 'shalman4502n@gmail.com'
+        msg['To'] = to_email
+        try:
+            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+                server.login('shalman4502n@gmail.com', 'oykp kxoe rhfl dbae')
+                server.send_message(msg)
+        except Exception as e:
+            print("Email sending failed:", e)
 
 class AuthModule:
     def __init__(self):
@@ -19,6 +35,8 @@ class AuthModule:
         self.users = db["users"] 
         self.register_routes()
          # MongoDB users collection
+    
+
     def register_routes(self):
         @self.bp.route('/register', methods=['POST'])
         def register():
@@ -28,16 +46,19 @@ class AuthModule:
         
             if self.users.find_one({"email": email}):
                 return jsonify({"msg": "User already exists"}), 400
-        
+            token=str(uuid.uuid4())
             pw_hash = bcrypt.generate_password_hash(password).decode('utf-8')
             user = {
                 "email": email,
                 "password_hash": pw_hash,
-                "created_at": datetime.utcnow()
+                "created_at": datetime.utcnow(),
+                "isActive":False,
+                "activation_token":token
             }
         
             self.users.insert_one(user)
-            return jsonify({"msg": "User created successfully"}), 201
+            send_email(email,token)
+            return jsonify({"msg": "Registration successfull,check you email for activation link"}), 201
         
         @self.bp.route('/login', methods=['POST'])
         def login():
@@ -51,6 +72,18 @@ class AuthModule:
 
             access_token = create_access_token(identity=str(user["_id"]))
             return jsonify(access_token=access_token), 200
+        @self.bp.route('/activate/<token>', methods=['GET'])
+        def activate_account(token):
+            user = self.users.find_one({'activation_token': token})
+            if not user:
+                return jsonify({"message": "Invalid or expired token"}), 400
+
+            self.users.update_one({'_id': user['_id']}, {
+        '$set': {'isActive': True},
+        '$unset': {'activation_token': ""}
+            })
+
+            return jsonify({"message": "Account activated successfully"})
         @self.bp.route('/userid', methods=['GET'])
         @jwt_required()
         def protected():

@@ -119,16 +119,8 @@ class AdminModule:
                 return jsonify({"error": "No records found"}), 404
 
 # Format the response
-            recent_url = {
-"shortCode": url["shortCode"],
-"longUrl": url["longUrl"],
-"createdAt": url["createdAt"],
-"expiryDate": url["expiryDate"],
-"clicks": url["clicks"],
-"base64img":url.get("base64img","")
-            }
 
-            return jsonify(recent_url), 200
+            return jsonify(url), 200
         @self.bp.route('/all',methods=['POST'])
         def all():
             data=request.json
@@ -139,6 +131,7 @@ class AdminModule:
             all_urls = []
             for url in urls:
                 all_urls.append({
+                    "base64img":url.get("base64img",""),
                     "shortCode": url.get("shortCode", ""),
                     "longUrl": url.get("longUrl", ""),
                     "createdAt": url.get("createdAt", ""),
