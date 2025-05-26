@@ -25,7 +25,7 @@ class AdminModule:
 
             short_code = data.get('shortCode')
             if not short_code:
-                return 'No short URL code provided', 400
+                return 'No short URL code provided', 400    
 
             result = collection.delete_one({'shortCode': short_code})
             if result.deleted_count == 0:
@@ -108,18 +108,22 @@ class AdminModule:
                 return f'Internal server error: {e}', 500
         @self.bp.route('/recent',methods=['POST'])
         def recent():
-            data=request.json
-            userid=data.get("userid")
-            userid=ObjectId(str(userid))
+            data = request.json
+            userid = data.get("userid")
+            userid = ObjectId(str(userid))
 
-# Find the most recently created record using _id
-            url = collection.find_one({"userid":userid},sort=[("_id", -1)]) # Sort by _id in descending order
+            url = collection.find_one({"userid": userid}, sort=[("_id", -1)])
 
             if not url:
                 return jsonify({"error": "No records found"}), 404
 
-# Format the response
+            # Remove _id from the result before returning
+            
+            # Remove any other non-serializable fields if needed
 
+            # Optionally, filter/format the response to only include desired fields
+            url.pop("_id", None)  # Remove _id field
+            url.pop("userid", None)  # Remove userid field
             return jsonify(url), 200
         @self.bp.route('/all',methods=['POST'])
         def all():

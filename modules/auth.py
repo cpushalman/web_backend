@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify,redirect
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token
 from datetime import datetime
@@ -16,7 +16,7 @@ from modules.db import db
 
 bcrypt = Bcrypt()
 def send_email(to_email,token):
-        activation_link=f"http://localhost:5000/activate/{token}"
+        activation_link=f"http://localhost:5000/auth/activate/{token}"
         body = f"Click to activate your account: {activation_link}"
         msg = MIMEText(body)
         msg['Subject'] = "Activate Your Account"
@@ -69,6 +69,9 @@ class AuthModule:
             user = self.users.find_one({"email": email})
             if not user or not bcrypt.check_password_hash(user["password_hash"], password):
                 return jsonify({"msg": "Invalid credentials"}), 401
+            if user["isActive"] is False:
+                return jsonify({"msg": "Account not activated"}), 403
+
 
             access_token = create_access_token(identity=str(user["_id"]))
             return jsonify(access_token=access_token), 200
@@ -83,7 +86,19 @@ class AuthModule:
         '$unset': {'activation_token': ""}
             })
 
-            return jsonify({"message": "Account activated successfully"})
+            return redirect("http://localhost:5173/login")
+        @self.bp.route('/resend/<email>')
+        def resend_activation(email):
+            user = self.users.find_one({"email": email})
+            if not user:
+                return jsonify({"msg": "User not found"}), 404
+            if user["isActive"]:
+                return jsonify({"msg": "Account already activated"}), 400
+            
+            token = str(uuid.uuid4())
+            self.users.update_one({"_id": user["_id"]}, {"$set": {"activation_token": token}})
+            send_email(email, token)
+            return jsonify({"msg": "Activation email resent"}), 200
         @self.bp.route('/userid', methods=['GET'])
         @jwt_required()
         def protected():
