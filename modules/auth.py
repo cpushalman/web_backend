@@ -45,8 +45,6 @@ class AuthModule:
             password = data.get("password")
         
             if self.users.find_one({"email": email}):
-
-            if users.find_one({"email": email}):
                 return jsonify({"msg": "User already exists"}), 400
             token=str(uuid.uuid4())
             pw_hash = bcrypt.generate_password_hash(password).decode('utf-8')
