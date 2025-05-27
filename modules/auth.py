@@ -8,26 +8,11 @@ import re
 import os
 from dotenv import load_dotenv
 from flask_jwt_extended import jwt_required, get_jwt_identity
-import uuid
-import smtplib
 from email.mime.text import MIMEText
 
 from modules.db import db
 
 bcrypt = Bcrypt()
-def send_email(to_email,token):
-        activation_link=f"http://localhost:5000/auth/activate/{token}"
-        body = f"Click to activate your account: {activation_link}"
-        msg = MIMEText(body)
-        msg['Subject'] = "Activate Your Account"
-        msg['From'] = 'shalman4502n@gmail.com'
-        msg['To'] = to_email
-        try:
-            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
-                server.login('shalman4502n@gmail.com', os.getenv("app_password"))
-                server.send_message(msg)
-        except Exception as e:
-            print("Email sending failed:", e)
 
 class AuthModule:
     def __init__(self):
@@ -46,19 +31,18 @@ class AuthModule:
         
             if self.users.find_one({"email": email}):
                 return jsonify({"msg": "User already exists"}), 400
-            token=str(uuid.uuid4())
+      
             pw_hash = bcrypt.generate_password_hash(password).decode('utf-8')
             user = {
                 "email": email,
                 "password_hash": pw_hash,
                 "created_at": datetime.utcnow(),
-                "isActive":False,
-                "activation_token":token
+                
             }
         
             self.users.insert_one(user)
-            send_email(email,token)
-            return jsonify({"msg": "Registration successfull,check you email for activation link"}), 201
+       
+            return jsonify({"msg": "Registration successfull"}), 201
         
         @self.bp.route('/login', methods=['POST'])
         def login():
@@ -72,37 +56,11 @@ class AuthModule:
                 user["password_hash"], password
             ):
                 return jsonify({"msg": "Invalid credentials"}), 401
-            if user["isActive"] is False:
-                return jsonify({"msg": "Account not activated"}), 403
 
 
             access_token = create_access_token(identity=str(user["_id"]))
             return jsonify(access_token=access_token), 200
-        @self.bp.route('/activate/<token>', methods=['GET'])
-        def activate_account(token):
-            user = self.users.find_one({'activation_token': token})
-            if not user:
-                return jsonify({"message": "Invalid or expired token"}), 400
-
-            self.users.update_one({'_id': user['_id']}, {
-        '$set': {'isActive': True},
-        '$unset': {'activation_token': ""}
-            })
-
-            return redirect("http://localhost:5173/login")
-        @self.bp.route('/resend/<email>')
-        def resend_activation(email):
-            user = self.users.find_one({"email": email})
-            if not user:
-                return jsonify({"msg": "User not found"}), 404
-            if user["isActive"]:
-                return jsonify({"msg": "Account already activated"}), 400
-            
-            token = str(uuid.uuid4())
-            self.users.update_one({"_id": user["_id"]}, {"$set": {"activation_token": token}})
-            send_email(email, token)
-            return jsonify({"msg": "Activation email resent"}), 200
-        @self.bp.route('/userid', methods=['GET'])
+       
         @jwt_required()
         def protected():
             user_id = get_jwt_identity()
