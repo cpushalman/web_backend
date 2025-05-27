@@ -7,12 +7,16 @@ from modules.auth import AuthModule
 import os
 from pymongo import MongoClient, errors
 from flask_cors import CORS
-
+from flask_jwt_extended import JWTManager
 
 class MainApp:
     def __init__(self):
         self.app = Flask(__name__)
-        CORS(self.app, origins=["http://localhost:5173"])
+        allowed_origins = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+        CORS(self.app, resources={r"/*": {"origins": allowed_origins}})
+        self.app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+        self.app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
+        jwt = JWTManager(self.app)
         self.register_modules()
         self.register_routes()
         self._mongo_connection()
