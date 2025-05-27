@@ -24,7 +24,7 @@ def send_email(to_email,token):
         msg['To'] = to_email
         try:
             with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
-                server.login('shalman4502n@gmail.com', 'oykp kxoe rhfl dbae')
+                server.login('shalman4502n@gmail.com', os.getenv('app_password'))
                 server.send_message(msg)
         except Exception as e:
             print("Email sending failed:", e)
