@@ -46,6 +46,9 @@ class ShortenModule:
             img_resp = requests.get(imageurl)
             img_base64 = base64.b64encode(img_resp.content).decode("utf-8")
             return img_base64
+        @self.bp.route("/debug")
+        def debug():
+            return dict(request.headers)
 
         @self.bp.route("/shorten", methods=["POST"])
         def shorten_url():
