@@ -3,12 +3,7 @@ services:
     name: qreator-api
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: >
-      PYTHONPATH=. 
-      waitress-serve 
-      --host=0.0.0.0 
-      --port=$PORT 
-      run:app
+    startCommand: > PYTHONPATH=. python run.py
     envVars:
       - key: FLASK_ENV
         value: production
