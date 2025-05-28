@@ -24,7 +24,7 @@ def send_email(to_email,token):
         msg['To'] = to_email
         try:
             with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
-                server.login('shalman4502n@gmail.com', os.getenv('app_password'))
+                server.login('shalman4502n@gmail.com', os.getenv("app_password"))
                 server.send_message(msg)
         except Exception as e:
             print("Email sending failed:", e)
@@ -67,7 +67,10 @@ class AuthModule:
             password = data.get("password")
         
             user = self.users.find_one({"email": email})
-            if not user or not bcrypt.check_password_hash(user["password_hash"], password):
+
+            if not user or not bcrypt.check_password_hash(
+                user["password_hash"], password
+            ):
                 return jsonify({"msg": "Invalid credentials"}), 401
             if user["isActive"] is False:
                 return jsonify({"msg": "Account not activated"}), 403
