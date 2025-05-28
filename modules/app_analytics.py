@@ -76,9 +76,7 @@ class AnalyticsModule:
             iso = now.isoformat()
             user_agent = parse(request.user_agent.string)
             if request.headers.get("X-Forwarded-For"):
-                ip_address = request.headers.get("X-Forwarded-For").split(",")[
-                    0
-                ]  # first ip in the list
+                ip_address = request.headers.get("X-Forwarded-For").split(",")[0].strip()  # first ip in the list
             else:
                 ip_address = request.remote_addr
 
