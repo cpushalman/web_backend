@@ -5,6 +5,7 @@ from modules.app_analytics import AnalyticsModule
 from modules.app_shorten import ShortenModule
 from modules.auth import AuthModule
 import os
+from werkzeug.middleware.proxy_fix import ProxyFix
 from pymongo import MongoClient, errors
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -13,6 +14,7 @@ class MainApp:
     def __init__(self):
         self.app = Flask(__name__)
         allowed_origins = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+        self.app.wsgi_app=ProxyFix(self.app.wsgi_app,x_for=1,x_proto=1)
         CORS(self.app, resources={r"/*": {"origins": allowed_origins}})
         self.app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
         self.app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")

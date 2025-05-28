@@ -16,7 +16,7 @@ from modules.db import db
 
 bcrypt = Bcrypt()
 def send_email(to_email,token):
-        activation_link=f"http://localhost:5000/auth/activate/{token}"
+        activation_link=f"https://web-backend-sdfc.onrender.com/auth/activate/{token}"
         body = f"Click to activate your account: {activation_link}"
         msg = MIMEText(body)
         msg['Subject'] = "Activate Your Account"
