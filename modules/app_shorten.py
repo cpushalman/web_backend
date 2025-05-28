@@ -7,6 +7,9 @@ from flask_cors import CORS
 import requests
 import base64
 from dotenv import load_dotenv
+from bson.objectid import ObjectId
+from random import choices
+import string
 
 load_dotenv()
 from modules.db import db
@@ -47,9 +50,10 @@ class ShortenModule:
         @self.bp.route("/shorten", methods=["POST"])
         def shorten_url():
             data = request.json
-            long_url = data.get("longUrl")
-            qrRender = data.get("qrRender")
-
+            long_url = data.get('longUrl')
+            qrRender=data.get('qrRender')
+            userid=data.get('userid')
+            userid=ObjectId(str(userid))
             custom_alias = data.get("customAlias")
 
             if not long_url:
@@ -78,6 +82,7 @@ class ShortenModule:
                     500,
                 )
             record = {
+                "userid":userid,
                 "shortCode": short_code,
                 "longUrl": long_url,
                 "createdAt": created_at,

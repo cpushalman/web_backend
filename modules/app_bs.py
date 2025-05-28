@@ -6,6 +6,7 @@ import string
 from dotenv import load_dotenv
 import os
 from modules.db import db
+from bson.objectid import ObjectId
 
 import pymongo.errors
 
@@ -72,6 +73,7 @@ class BSModule:
                         "createdAt": created_at,
                         "expiryDate": expiry_date,
                         "clicks": 0,
+                        "userid":userid
                     }
                     try:
                         collection.insert_one(record)
