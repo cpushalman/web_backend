@@ -75,10 +75,10 @@ class AnalyticsModule:
             now = datetime.utcnow()
             iso = now.isoformat()
             user_agent = parse(request.user_agent.string)
-            if request.headers.get("X-Forwarded-For") or request.headers.get("Cf-Connecting-Ip"):
+            if request.headers.get("X-Forwarded-For"):
                 ip_address = request.headers.get("X-Forwarded-For").split(",")[0].strip()  # first ip in the list
-                if not ip_address:
-                    ip_address= request.headers.get("Cf-Connecting-Ip").split(",")[0].strip()  # first ip in the list
+            elif  request.headers.get("Cf-Connecting-Ip"):
+                ip_address= request.headers.get("Cf-Connecting-Ip").split(",")[0].strip()  # first ip in the list
             else:
                 ip_address = request.remote_addr
 
