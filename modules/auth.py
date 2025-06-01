@@ -20,11 +20,11 @@ def send_email(to_email,token):
         body = f"Click to activate your account: {activation_link}"
         msg = MIMEText(body)
         msg['Subject'] = "Activate Your Account"
-        msg['From'] = 'shalman4502n@gmail.com'
+        msg['From'] = os.getenv("smtp_mail")
         msg['To'] = to_email
         try:
             with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
-                server.login('shalman4502n@gmail.com', os.getenv("app_password"))
+                server.login(os.getenv("smtp_mail"), os.getenv("app_password"))
                 server.send_message(msg)
         except Exception as e:
             print("Email sending failed:", e)
