@@ -168,7 +168,7 @@ class AnalyticsModule:
             url = collection.find_one({"shortCode": short})
             if not url:
                 return "Short code does not exist", 404
-            clicks = url["clicks"]
+            clicks = url.get("clicks",0)
 
             device = Counter(click["device"] for click in url["click_data"])
             os = Counter(click["os"] for click in url["click_data"])
