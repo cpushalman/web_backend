@@ -181,6 +181,8 @@ class AnalyticsModule:
                 "deviceDistribution": device,
                 "osDistribution": os,
                 "browserDistribution": browser,
+                "base64img":url.get("base64img",""),
+                "click_data": url.get("click_data","")
             }
             return jsonify(display)
         
