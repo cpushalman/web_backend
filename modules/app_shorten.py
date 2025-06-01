@@ -18,6 +18,7 @@ from modules.db import db
 collection = db["urls"]
 collection.create_index("shortCode", unique=True)
 history= db["shortcode"]
+history.create_index("shortCode", unique=True)
 
 
 class ShortenModule:
