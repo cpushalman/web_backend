@@ -89,7 +89,7 @@ class AuthModule:
         '$unset': {'activation_token': ""}
             })
 
-            return redirect("http://localhost:5173/login")
+            return redirect("https://web-frontend-five-smoky.vercel.app/login")
         @self.bp.route('/resend/<email>')
         def resend_activation(email):
             user = self.users.find_one({"email": email})
