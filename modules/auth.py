@@ -12,13 +12,14 @@ from modules.db import db
 
 bcrypt = Bcrypt()
 auth = Blueprint("auth", __name__)
-
+collection=db["urls"]
+history=db["shortcode"]
+users = db["users"] 
 
 class AuthModule:
     def __init__(self):
         self.bp = Blueprint("auth", __name__, url_prefix="/auth")
         self.register_routes()
-        users = db["users"]  # MongoDB users collection
 
         @self.bp.route("/register", methods=["POST"])
         def register():
@@ -53,6 +54,23 @@ class AuthModule:
 
             access_token = create_access_token(identity=str(user["_id"]))
             return jsonify(access_token=access_token), 200
+            
+        @app.route("/history", methods=["POST"])
+        def history():
+            data = request.json
+            userid = data.get('userid')
+            if not userid:
+                return jsonify({"error": "User ID is required"}), 400
+            try:
+                userid = ObjectId(userid) 
+            except Exception as e:
+                return jsonify({"error": "Invalid User ID format"}), 400
+            history_data= history.find({"userid": userid}, {"_id": 0, "shortcode": 1})
+            result = list(history_data)
+            return jsonify(result)
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
         def get_blueprint(self):
             return self.bp
