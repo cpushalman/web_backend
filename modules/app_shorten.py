@@ -7,6 +7,9 @@ from flask_cors import CORS
 import requests
 import base64
 from dotenv import load_dotenv
+from bson.objectid import ObjectId
+from random import choices
+import string
 
 load_dotenv()
 from modules.db import db
@@ -14,6 +17,8 @@ from modules.db import db
 
 collection = db["urls"]
 collection.create_index("shortCode", unique=True)
+history= db["shortcode"]
+history.create_index("shortCode", unique=True)
 
 
 class ShortenModule:
@@ -47,9 +52,10 @@ class ShortenModule:
         @self.bp.route("/shorten", methods=["POST"])
         def shorten_url():
             data = request.json
-            long_url = data.get("longUrl")
-            qrRender = data.get("qrRender")
-
+            long_url = data.get('longUrl')
+            qrRender=data.get('qrRender')
+            userid=data.get('userid')
+            userid=ObjectId(str(userid))
             custom_alias = data.get("customAlias")
 
             if not long_url:
@@ -65,7 +71,7 @@ class ShortenModule:
 
             created_at = datetime.utcnow().isoformat()
             expiry_date = (datetime.utcnow() + timedelta(days=90)).isoformat()
-            short_url = f"http://short.ly/{short_code}"
+            short_url = f"https://short.ly/{short_code}"
             if not isinstance(qrRender, dict):
                 qrRender = {}
             qrRender["data"] = short_url
@@ -78,6 +84,7 @@ class ShortenModule:
                     500,
                 )
             record = {
+                "userid":userid,
                 "shortCode": short_code,
                 "longUrl": long_url,
                 "createdAt": created_at,
@@ -89,6 +96,7 @@ class ShortenModule:
             try:
 
                 collection.insert_one(record)
+                history.insert_one({"userid":userid,"shortCode": short_code})
                 return (
                     jsonify(
                         {
@@ -107,27 +115,6 @@ class ShortenModule:
                     jsonify({"error": "Database insert failed", "details": str(e)}),
                     500,
                 )
-
-        @self.bp.route("/expand/<string:short_code>", methods=["GET"])
-        def expand_url(short_code):
-            result = collection.find_one({"shortCode": short_code})
-            if not result:
-                return (
-                    jsonify({"error": "404 Not Found – Short code does not exist"}),
-                    404,
-                )
-            expiry_date = result.get("expiryDate")
-            if expiry_date and datetime.fromisoformat(expiry_date) < datetime.utcnow():
-                return jsonify({"error": "410 Gone – URL has expired"}), 410
-            return jsonify(
-                {
-                    "longUrl": result["longUrl"],
-                    "shortCode": result["shortCode"],
-                    "clicks": result["clicks"],
-                    "createdAt": result["createdAt"],
-                    "expiryDate": result["expiryDate"],
-                }
-            )
 
     def get_blueprint(self):
         return self.bp

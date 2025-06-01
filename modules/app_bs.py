@@ -6,11 +6,14 @@ import string
 from dotenv import load_dotenv
 import os
 from modules.db import db
+from bson.objectid import ObjectId
 
 import pymongo.errors
 
 
 collection = db["urls"]
+history= db["shortcode"]
+history.create_index("shortCode", unique=True)
 
 
 class BSModule:
@@ -37,6 +40,8 @@ class BSModule:
 
             """Bulk shorten URLs."""
             data = request.json
+            userid=data.get('userid')
+            userid=objectId(str(userid))
             if not data or "urls" not in data:
                 return (
                     jsonify(
@@ -72,9 +77,11 @@ class BSModule:
                         "createdAt": created_at,
                         "expiryDate": expiry_date,
                         "clicks": 0,
+                        "userid":userid
                     }
                     try:
                         collection.insert_one(record)
+                        history.insert_one({"userid":userid,"shortCode": short_code,})
                     except pymongo.errors.DuplicateKeyError:
                         # If duplicate key error, generate a new short code and insert again
                         short_code = self.generate_short_code()
