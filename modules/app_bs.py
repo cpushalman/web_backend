@@ -102,6 +102,7 @@ class BSModule:
                         "clicks": 0,
                         "impressions":0,
                         "base64img": base64img,
+                        "click_data":[],
                         "unique_visitors_list":[],
                         "unique_visitors":0
                         
